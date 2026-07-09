@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Influencer Invoice Generator</title>
+
+    <link rel="stylesheet" href="style.css">
+
+    <!-- jsPDF -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+
+    <!-- html2canvas -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+</head>
+
+<body>
+
+<div class="container">
+
+    <h1>Influencer Invoice Generator</h1>
+
+    <!-- ===================== -->
+    <!-- Invoice Details -->
+    <!-- ===================== -->
+
+    <div class="card">
+
+        <h2>Invoice Details</h2>
+
+        <div class="grid">
+
+            <div>
+                <label>Invoice Number</label>
+                <input
+                    type="text"
+                    id="invoiceNumber"
+                    placeholder="INV-001">
+            </div>
+
+            <div>
+                <label>Invoice Date</label>
+                <input
+                    type="date"
+                    id="invoiceDate">
+            </div>
+
+            <div>
+                <label>Due Date</label>
+                <input
+                    type="date"
+                    id="dueDate">
+            </div>
+
+            <div>
+                <label>Brand Name</label>
+                <input
+                    type="text"
+                    id="brandName"
+                    placeholder="Brand">
+            </div>
+
+        </div>
+
+    </div>
+
+    <!-- ===================== -->
+    <!-- Campaign -->
+    <!-- ===================== -->
+
+    <div class="card">
+
+        <h2>Campaign Details</h2>
+
+        <label>Campaign Name</label>
+        <input
+            type="text"
+            id="campaignName"
+            placeholder="Summer Campaign">
+
+        <label>Deliverable</label>
+        <input
+            type="text"
+            id="deliverable"
+            placeholder="1 Instagram Reel">
+
+        <label>Description</label>
+
+        <textarea
+            id="description"
+            rows="4"
+            placeholder="Describe the reel or campaign"></textarea>
+
+    </div>
+
+    <!-- ===================== -->
+    <!-- Amount -->
+    <!-- ===================== -->
+
+    <div class="card">
+
+        <h2>Billing</h2>
+
+        <div class="grid">
+
+            <div>
+                <label>Amount (₹)</label>
+                <input
+                    type="number"
+                    id="amount"
+                    placeholder="25000">
+            </div>
+
+            <div>
+                <label>GST %</label>
+                <input
+                    type="number"
+                    id="gst"
+                    placeholder="18"
+                    value="0">
+            </div>
+
+        </div>
+
+        <div class="totals">
+
+            <p>
+                Subtotal:
+                <span id="subtotal">
+                    ₹0
+                </span>
+            </p>
+
+            <p>
+                GST:
+                <span id="gstAmount">
+                    ₹0
+                </span>
+            </p>
+
+            <h3>
+                Total:
+                <span id="total">
+                    ₹0
+                </span>
+            </h3>
+
+        </div>
+
+    </div>
+
+    <!-- ===================== -->
+    <!-- Notes -->
+    <!-- ===================== -->
+
+    <div class="card">
+
+        <h2>Notes</h2>
+
+        <textarea
+            id="notes"
+            rows="4"
+            placeholder="Optional Notes"></textarea>
+
+    </div>
+
+    <!-- ===================== -->
+    <!-- Buttons -->
+    <!-- ===================== -->
+
+    <div class="buttons">
+
+        <button id="previewBtn">
+            Preview Invoice
+        </button>
+
+        <button id="downloadPdf">
+            Download PDF
+        </button>
+
+        <button id="saveJson">
+            Save Invoice
+        </button>
+
+        <button id="loadJsonBtn">
+            Load Invoice
+        </button>
+
+        <button id="resetBtn">
+            Reset
+        </button>
+
+    </div>
+
+    <input
+        type="file"
+        id="loadJson"
+        accept=".json"
+        hidden>
+
+</div>
+
+<!-- ===================================================== -->
+<!-- Hidden Invoice Layout (Used for PDF Generation) -->
+<!-- ===================================================== -->
+
+<div id="invoice" class="invoice">
+
+    <div class="invoice-header">
+
+        <div>
+
+            <h1>INVOICE</h1>
+
+            <p>
+                <strong>Invoice No:</strong>
+                <span id="pInvoiceNumber"></span>
+            </p>
+
+            <p>
+                <strong>Date:</strong>
+                <span id="pInvoiceDate"></span>
+            </p>
+
+            <p>
+                <strong>Due:</strong>
+                <span id="pDueDate"></span>
+            </p>
+
+        </div>
+
+    </div>
+
+    <hr>
+
+    <div class="section">
+
+        <div class="from">
+
+            <h3>From</h3>
+
+            <p><strong>Your Name</strong></p>
+
+            <p>Your Address</p>
+
+            <p>City, State</p>
+
+            <p>Email: your@email.com</p>
+
+            <p>Phone: +91 9876543210</p>
+
+            <p>PAN: ABCDE1234F</p>
+
+        </div>
+
+        <div class="to">
+
+            <h3>Bill To</h3>
+
+            <p id="pBrand"></p>
+
+        </div>
+
+    </div>
+
+    <hr>
+
+    <table>
+
+        <thead>
+
+        <tr>
+
+            <th>Description</th>
+
+            <th>Amount</th>
+
+        </tr>
+
+        </thead>
+
+        <tbody>
+
+        <tr>
+
+            <td>
+
+                <strong id="pCampaign"></strong>
+
+                <br><br>
+
+                <span id="pDeliverable"></span>
+
+                <br><br>
+
+                <span id="pDescription"></span>
+
+            </td>
+
+            <td id="pAmount"></td>
+
+        </tr>
+
+        </tbody>
+
+    </table>
+
+    <div class="summary">
+
+        <p>
+            Subtotal:
+            <span id="pSubtotal"></span>
+        </p>
+
+        <p>
+            GST:
+            <span id="pGST"></span>
+        </p>
+
+        <h2>
+            Total:
+            <span id="pTotal"></span>
+        </h2>
+
+    </div>
+
+    <div class="amountWords">
+
+        <strong>Amount in Words</strong>
+
+        <p id="pWords"></p>
+
+    </div>
+
+    <hr>
+
+    <div class="bank">
+
+        <h3>Bank Details</h3>
+
+        <p>Bank: HDFC Bank</p>
+
+        <p>Account: 12345678901234</p>
+
+        <p>IFSC: HDFC0001234</p>
+
+        <p>UPI: yourupi@okhdfcbank</p>
+
+    </div>
+
+    <br>
+
+    <div class="notes">
+
+        <h3>Notes</h3>
+
+        <p id="pNotes"></p>
+
+    </div>
+
+    <br><br>
+
+    <div class="signature">
+
+        __________________________
+
+        <br>
+
+        Authorized Signature
+
+    </div>
+
+</div>
+
+<script src="script.js"></script>
+
+</body>
+</html>
