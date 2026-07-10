@@ -1169,21 +1169,22 @@ downloadBtn.addEventListener("click", async () => {
     invoice.style.position = "fixed";
 
     const canvas = await html2canvas(invoice, {
-        scale: 2,
+        scale: 1,
         useCORS: true
     });
 
     invoice.style.left = "-9999px";
     invoice.style.position = "absolute";
 
-    const imgData = canvas.toDataURL("image/png");
+    const imgData = canvas.toDataURL("image/jpeg",0.75);
 
     const { jsPDF } = window.jspdf;
 
     const pdf = new jsPDF({
         orientation: "portrait",
         unit: "mm",
-        format: "a4"
+        format: "a4",
+        compress: true
     });
 
     const width = pdf.internal.pageSize.getWidth();
@@ -1193,7 +1194,7 @@ downloadBtn.addEventListener("click", async () => {
 
     pdf.addImage(
         imgData,
-        "PNG",
+        "JPEG",
         0,
         0,
         width,
